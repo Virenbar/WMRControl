@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "WMRControl": {
+      "commandName": "Project"
+    },
+    "WMRControl Arg": {
+      "commandName": "Project",
+      "commandLineArgs": "-disable"
+    }
+  }
+}
