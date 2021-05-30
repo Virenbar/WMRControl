@@ -10,7 +10,7 @@ namespace WMRControl
 		private const string Query = @"SELECT * FROM Win32_PnPEntity WHERE PNPClass LIKE 'Holographic'";
 		private const string Scope = "root\\CIMV2";
 		private ManagementObject WMRObject;
-		private bool IsInvoking = false;
+		private bool IsInvoking;
 
 		#region Properties
 		public bool IsEnabled { get; set; }
@@ -41,8 +41,6 @@ namespace WMRControl
 				{
 					if (Objects.Count == 0) { throw new Exception("WMR Device not found"); }
 					WMRObject = Objects.Cast<ManagementObject>().First();
-
-					//var p = WMRObject.Properties;
 					IsEnabled = (uint)WMRObject.Properties["ConfigManagerErrorCode"].Value != 22;
 				}
 			}
@@ -59,9 +57,8 @@ namespace WMRControl
 			{
 				await Task.Delay(500);
 			}
+			await Task.Delay(1000);
 			WMRObject.Get();
-			//await Task.Delay(5000);
-			//WMRObject.Get();
 			IsEnabled = (uint)WMRObject.Properties["ConfigManagerErrorCode"].Value != 22;
 			OnStateChanged();
 		}

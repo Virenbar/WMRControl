@@ -16,27 +16,10 @@ namespace WMRControl
 			WMRM = new WMRManager();
 		}
 
-		private void WMRM_StateChanged(object sender, EventArgs e)
+		protected override void SetVisibleCore(bool value)
 		{
-			RefreshUI();
-		}
-
-		private void SetWMRState(bool state)
-		{
-			LockUI();
-			WMRM.SetWMRState(state);
-		}
-
-		private void DisableWMR()
-		{
-			LockUI();
-			WMRM.DisableWMR();
-		}
-
-		private void EnableWMR()
-		{
-			LockUI();
-			WMRM.EnableWMR();
+			if (BlockVisible) { return; }
+			base.SetVisibleCore(value);
 		}
 
 		private void LockUI()
@@ -69,48 +52,28 @@ namespace WMRControl
 			B_State.Enabled = true;
 		}
 
+		private void SetWMRState(bool state)
+		{
+			LockUI();
+			WMRM.SetWMRState(state);
+		}
+
 		private void ShowForm()
 		{
 			BlockVisible = false;
 			Visible = true;
 		}
 
-		#region UI Events
+		private void WMRM_StateChanged(object sender, EventArgs e)
+		{
+			RefreshUI();
+		}
+
+		#region Form Events
 
 		private void B_State_Click(object sender, EventArgs e)
 		{
 			SetWMRState(!WMRM.IsEnabled);
-			//if (WMRM.IsEnabled)
-			//{
-			//	DisableWMR();
-			//}
-			//else
-			//{
-			//	EnableWMR();
-			//}
-		}
-
-		private void FormMain_Load(object sender, EventArgs e)
-		{
-			WMRM.StateChanged += WMRM_StateChanged;
-			WMRM.Init();
-		}
-
-		private void MI_Disable_Click(object sender, EventArgs e)
-		{
-			SetWMRState(false);
-			//DisableWMR();
-		}
-
-		private void MI_Enable_Click(object sender, EventArgs e)
-		{
-			SetWMRState(true);
-			//EnableWMR();
-		}
-
-		private void MI_Exit_Click(object sender, EventArgs e)
-		{
-			Application.Exit();
 		}
 
 		private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -122,17 +85,36 @@ namespace WMRControl
 			}
 		}
 
+		private void FormMain_Load(object sender, EventArgs e)
+		{
+			WMRM.StateChanged += WMRM_StateChanged;
+			WMRM.Init();
+		}
+
+		#endregion Form Events
+
+		#region Tray Events
+
+		private void MI_Disable_Click(object sender, EventArgs e)
+		{
+			SetWMRState(false);
+		}
+
+		private void MI_Enable_Click(object sender, EventArgs e)
+		{
+			SetWMRState(true);
+		}
+
+		private void MI_Exit_Click(object sender, EventArgs e)
+		{
+			Application.Exit();
+		}
+
 		private void TrayControl_MouseClick(object sender, MouseEventArgs e)
 		{
 			if (e.Button == MouseButtons.Left) { ShowForm(); }
 		}
 
-		#endregion UI Events
-
-		protected override void SetVisibleCore(bool value)
-		{
-			if (BlockVisible) return;
-			base.SetVisibleCore(value);
-		}
+		#endregion Tray Events
 	}
 }
