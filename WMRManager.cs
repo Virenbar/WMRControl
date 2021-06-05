@@ -9,29 +9,15 @@ namespace WMRControl
 	{
 		private const string Query = @"SELECT * FROM Win32_PnPEntity WHERE PNPClass LIKE 'Holographic'";
 		private const string Scope = "root\\CIMV2";
-		private ManagementObject WMRObject;
 		private bool IsInvoking;
+		private ManagementObject WMRObject;
 
 		#region Properties
 		public bool IsEnabled { get; set; }
 		public string Name => WMRObject.Properties["Name"].Value.ToString();
-		public string State => ParseError((uint)WMRObject.Properties["ConfigManagerErrorCode"].Value);
+		public string State => ParseError(ErrorCode);
+		private uint ErrorCode => (uint)WMRObject.Properties["ConfigManagerErrorCode"].Value;
 		#endregion Properties
-
-		public void DisableWMR()
-		{
-			_ = InvokeMethod("Disable");
-		}
-
-		public void EnableWMR()
-		{
-			_ = InvokeMethod("Enable");
-		}
-
-		public void SetWMRState(bool state)
-		{
-			_ = InvokeMethod(state ? "Enable" : "Disable");
-		}
 
 		public void Init()
 		{
@@ -41,17 +27,28 @@ namespace WMRControl
 				{
 					if (Objects.Count == 0) { throw new Exception("WMR Device not found"); }
 					WMRObject = Objects.Cast<ManagementObject>().First();
-					IsEnabled = (uint)WMRObject.Properties["ConfigManagerErrorCode"].Value != 22;
+					IsEnabled = ErrorCode != 22;
 				}
 			}
 			OnStateChanged();
 		}
 
+		public void SetWMRState(bool state)
+		{
+			_ = InvokeMethod(state ? "Enable" : "Disable");
+		}
+
+		protected virtual void OnStateChanged()
+		{
+			EventHandler handler = StateChanged;
+			handler?.Invoke(this, EventArgs.Empty);
+		}
+
 		private async Task InvokeMethod(string method)
 		{
-			var MOO = new ManagementOperationObserver();
-			MOO.Completed += new CompletedEventHandler(MOO_Completed);
 			IsInvoking = true;
+			var MOO = new ManagementOperationObserver();
+			MOO.Completed += (sender, e) => { IsInvoking = false; };
 			WMRObject.InvokeMethod(MOO, method, null);
 			while (IsInvoking)
 			{
@@ -59,19 +56,8 @@ namespace WMRControl
 			}
 			await Task.Delay(1000);
 			WMRObject.Get();
-			IsEnabled = (uint)WMRObject.Properties["ConfigManagerErrorCode"].Value != 22;
+			IsEnabled = ErrorCode != 22;
 			OnStateChanged();
-		}
-
-		private void MOO_Completed(object sender, CompletedEventArgs e)
-		{
-			IsInvoking = false;
-		}
-
-		protected virtual void OnStateChanged()
-		{
-			EventHandler handler = StateChanged;
-			handler?.Invoke(this, EventArgs.Empty);
 		}
 
 		private string ParseError(uint error)

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WMRControl
@@ -89,6 +88,11 @@ namespace WMRControl
 		{
 			WMRM.StateChanged += WMRM_StateChanged;
 			WMRM.Init();
+		}
+
+		private void B_Exit_Click(object sender, EventArgs e)
+		{
+			Application.Exit();
 		}
 
 		#endregion Form Events

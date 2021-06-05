@@ -12,11 +12,11 @@ namespace WMRControl
 		[STAThread]
 		private static void Main(string[] args)
 		{
-			if (args.Length > 0 && new[] { "-enable", "-disable" }.Contains(args[0]))
+			if (args.Length > 0 && new[] { "-enable", "-disable" }.Contains(args[0].ToLower()))
 			{
 				var WMRM = new WMRManager();
 				WMRM.Init();
-				WMRM.SetWMRState(args[0] == "-enable");
+				WMRM.SetWMRState(args[0].ToLower() == "-enable");
 			}
 			else
 			{

@@ -11,6 +11,8 @@
     <Version>1.0.1</Version>
     <Authors>Virenbar</Authors>
     <Configurations>Debug;Release;DebigArg</Configurations>
+    <PackageLicenseExpression></PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
